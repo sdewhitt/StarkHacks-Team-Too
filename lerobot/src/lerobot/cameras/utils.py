@@ -42,6 +42,11 @@ def make_cameras_from_configs(camera_configs: dict[str, CameraConfig]) -> dict[s
 
             cameras[key] = Reachy2Camera(cfg)
 
+        elif cfg.type == "mjpeg_stream":
+            from .mjpeg_stream import MJPEGStreamCamera
+
+            cameras[key] = MJPEGStreamCamera(cfg)
+
         elif cfg.type == "zmq":
             from .zmq.camera_zmq import ZMQCamera
 
@@ -56,7 +61,7 @@ def make_cameras_from_configs(camera_configs: dict[str, CameraConfig]) -> dict[s
     return cameras
 
 
-def get_cv2_rotation(rotation: Cv2Rotation) -> int | None:
+def get_cv2_rotation(rotation: Cv2Rotation):
     import cv2  # type: ignore  # TODO: add type stubs for OpenCV
 
     if rotation == Cv2Rotation.ROTATE_90:

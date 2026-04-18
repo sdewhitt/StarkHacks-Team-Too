@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2025 The HuggingFace Inc. team. All rights reserved.
+# Copyright 2026 The HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .config import TeleoperatorConfig
-from .quest import QuestTeleop, QuestTeleopConfig
-from .teleoperator import Teleoperator
-from .utils import TeleopEvents, make_teleoperator_from_config
+from dataclasses import dataclass
 
-__all__ = [
-	"QuestTeleop",
-	"QuestTeleopConfig",
-	"Teleoperator",
-	"TeleoperatorConfig",
-	"TeleopEvents",
-	"make_teleoperator_from_config",
-]
+from ..configs import CameraConfig
+
+
+@CameraConfig.register_subclass("mjpeg_stream")
+@dataclass(kw_only=True)
+class MJPEGStreamCameraConfig(CameraConfig):
+    url: str
+    width: int = 640
+    height: int = 480
+    fps: int = 30
+    timeout_s: float = 5.0
+    name: str = "wrist"
+
