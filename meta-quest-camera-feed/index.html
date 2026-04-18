@@ -1,0 +1,37 @@
+<!-- index.html -->
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent('refresh-texture', {
+        tick: function () {
+          const mesh = this.el.getObject3D('mesh');
+          if (!mesh || !mesh.material || !mesh.material.map) {
+            return;
+          }
+          mesh.material.map.needsUpdate = true;
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+        <img id="camera-feed" src="/video" crossorigin="anonymous">
+      </a-assets>
+      
+      <!-- Camera -->
+      <a-entity camera look-controls position="0 1.6 0"></a-entity>
+
+      <!-- Video feed as a panel -->
+      <a-plane 
+        position="0 1.6 -2" 
+        width="2" 
+        height="1.2"
+        material="shader: flat; src: #camera-feed"
+        refresh-texture>
+      </a-plane>
+
+    </a-scene>
+  </body>
+</html>
