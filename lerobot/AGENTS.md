@@ -52,3 +52,4 @@ pre-commit run --all-files                           # Lint + format (ruff, typo
 - **Optional dependencies**: many policies, envs, and robots are behind extras (e.g., `lerobot[aloha]`). New imports for optional packages must be guarded or lazy. See `pyproject.toml [project.optional-dependencies]`.
 - **Video decoding**: datasets can store observations as video files. `LeRobotDataset` handles frame extraction, but tests need ffmpeg installed.
 - **Prioritize use of `uv run`** to execute Python commands (not raw `python` or `pip`).
+- **Physical robot motion safety**: for commands that can move real hardware, prefer documented flows (`lerobot-teleoperate` and guides in `docs/source/`), require an operator safety check first (clear workspace, reachable E-stop, conservative bounds), and avoid ad-hoc direct actuation snippets.
