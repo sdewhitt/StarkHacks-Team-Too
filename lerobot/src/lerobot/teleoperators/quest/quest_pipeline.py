@@ -16,8 +16,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
+from lerobot.model.kinematics import RobotKinematics
 from lerobot.processor import DataProcessorPipeline
 from lerobot.robots.so_follower.robot_kinematic_processor import (
     EEBoundsAndSafety,
@@ -27,15 +29,24 @@ from lerobot.robots.so_follower.robot_kinematic_processor import (
     InverseKinematicsEEToJoints,
 )
 
-from .config_quest_teleop import QuestTeleopConfig
+try:
+    from .config_quest_teleop import QuestTeleopConfig
+except ImportError:  # pragma: no cover - enables direct execution as a script
+    from lerobot.teleoperators.quest.config_quest_teleop import QuestTeleopConfig
+
+SO101_URDF_PATH = Path("./SO101/so101_new_calib.urdf")
 
 
-def _get_kinematics(robot: Any) -> Any:
-    if hasattr(robot, "kinematics"):
-        return robot.kinematics
-    raise ValueError(
-        "Quest pipelines require a kinematics solver. TODO: connect this to the SO-101 URDF kinematics factory."
-    )
+def _build_kinematics_solver(motor_names: list[str]) -> RobotKinematics | None:
+    # Same binding strategy as phone teleop examples: build a RobotKinematics solver from SO-101 URDF.
+    try:
+        return RobotKinematics(
+            urdf_path=str(SO101_URDF_PATH),
+            target_frame_name="gripper_frame_link",
+            joint_names=motor_names,
+        )
+    except Exception:
+        return None
 
 
 def _get_motor_names(robot: Any) -> list[str]:
@@ -47,8 +58,14 @@ def _get_motor_names(robot: Any) -> list[str]:
 def build_quest_so101_pipelines(robot: Any, config: QuestTeleopConfig):
     """Returns (teleop_to_dataset, dataset_to_robot, robot_to_dataset)."""
 
-    kinematics = _get_kinematics(robot)
     motor_names = _get_motor_names(robot)
+    kinematics = _build_kinematics_solver(motor_names)
+    assert (
+        kinematics is not None
+    ), (
+        "Quest pipeline could not initialize SO-101 kinematics. "
+        f"Please provide the SO-101 URDF at '{SO101_URDF_PATH}'."
+    )
 
     teleop_to_dataset = DataProcessorPipeline(
         steps=[
@@ -96,7 +113,6 @@ def _pipeline_step_names(pipeline: DataProcessorPipeline) -> list[str]:
 if __name__ == "__main__":
     class _DummyRobot:
         def __init__(self):
-            self.kinematics = object()
             self.bus = type("Bus", (), {"motors": {"shoulder_pan": object(), "shoulder_lift": object(), "elbow_flex": object(), "wrist_flex": object(), "wrist_roll": object(), "gripper": object()}})()
 
     robot = _DummyRobot()
