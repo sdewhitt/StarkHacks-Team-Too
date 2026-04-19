@@ -11,6 +11,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping, Optional
+from lerobot.robots.so_follower import SOFollower, SOFollowerRobotConfig
 
 log = logging.getLogger("voice_bridge")
 
@@ -156,22 +157,15 @@ async def handle_client(
             if subscribed:
                 now = time.monotonic()
                 try:
-                    base = {
-                        "shoulder_pan.pos": random.uniform(-2.6, 2.6),
-                        "shoulder_lift.pos": random.uniform(-1.74, 1.74),
-                        "elbow_flex.pos": random.uniform(-2.27, 2.27),
-                        "wrist_flex.pos": random.uniform(-1.74, 1.74),
-                        "wrist_roll.pos": random.uniform(-3.14, 3.14),
-                        "gripper.pos": random.uniform(0.0, 1.0)
-                    }
+                    obs = robot.get_observation()
 
                     positions = {
-                        "shoulder_link": float(base["shoulder_pan.pos"]),
-                        "upper_arm_link": float(base["shoulder_lift.pos"]),
-                        "lower_arm_link": float(base["elbow_flex.pos"]),
-                        "wrist_link": float(base["wrist_flex.pos"]),
-                        "gripper_link": float(base["wrist_roll.pos"]), # The 6th motion
-                        "moving_jaw_so101_v1_link": float(base["gripper.pos"])
+                        "shoulder_link": float(obs["shoulder_pan.pos"]),
+                        "upper_arm_link": float(obs["shoulder_lift.pos"]),
+                        "lower_arm_link": float(obs["elbow_flex.pos"]),
+                        "wrist_link": float(obs["wrist_flex.pos"]),
+                        "gripper_link": float(obs["wrist_roll.pos"]), # The 6th motion
+                        "moving_jaw_so101_v1_link": float(obs["gripper.pos"])
                     }
                     latest_joint_state_store.update(positions)
                     version, payload = state_store.snapshot()
