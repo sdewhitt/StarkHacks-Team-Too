@@ -25,6 +25,16 @@ python send_robot_state_example.py --server http://127.0.0.1:5000 --simulate
 
 You should see the digital twin moving even with no robot attached.
 
+If you also want to test the Quest voice/websocket path at the same time,
+run the combined fake feeder from the repository root:
+
+```powershell
+python scripts/voice_bridge/fake_robot_state_feeder.py --host 0.0.0.0 --port 8765 --hz 30 --http-server http://127.0.0.1:5000
+```
+
+This publishes fake LeRobot-style joint telemetry to the voice bridge and mirrors
+converted state to this server's `POST /robot_state` endpoint.
+
 ## 3) Required robot data
 
 Your robot-side script must send the following payload fields:
