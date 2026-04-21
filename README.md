@@ -1,6 +1,8 @@
 # ControVirtual
 Bridging physical robotics and immersive teleoperation.
 
+- Honorable mention for "Best Use of AMD Tech" at [StarkHacks](https://devpost.com/software/team-too) 2026
+
 ## Project State (April 2026)
 
 This repository is a hackathon-stage integration of:
