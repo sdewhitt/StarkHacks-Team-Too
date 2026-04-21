@@ -8,13 +8,20 @@ import random
 import signal
 import threading
 import time
+import lerobot
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping, Optional
 from lerobot.robots.so_follower import SOFollower, SOFollowerRobotConfig
 
 log = logging.getLogger("voice_bridge")
-
+config = SOFollowerRobotConfig(
+    robot_type="so101_follower", 
+    id="follower", 
+    port="/dev/ttyUSB0" # Use "COM3" etc. on Windows
+)
+robot = SOFollower(config)
+robot.connect(calibrate=False)
 
 @dataclass(frozen=True)
 class Command:

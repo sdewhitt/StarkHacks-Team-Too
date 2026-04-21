@@ -19,14 +19,21 @@ def run_telemetry():
         while True:
             # 2. Get the live state from the robot
             obs = robot.get_observation()
-            
-            # 3. Map LeRobot names to your Unity GameObject names
-            # IMPORTANT: The keys below must match your Unity Hierarchy names exactly!
+            positions = {
+                "shoulder_link": float(base["shoulder_pan.pos"]),
+                "upper_arm_link": float(base["shoulder_lift.pos"]),
+                "lower_arm_link": float(base["elbow_flex.pos"]),
+                "wrist_link": float(base["wrist_flex.pos"]),
+                "gripper_link": float(base["wrist_roll.pos"]), # The 6th motion
+                "moving_jaw_so101_v1_link": float(base["gripper.pos"])
+            }
+    # 
             positions = {
                 "shoulder_link": float(obs["shoulder_pan.pos"]),
                 "upper_arm_link": float(obs["shoulder_lift.pos"]),
                 "lower_arm_link": float(obs["elbow_flex.pos"]),
                 "wrist_link": float(obs["wrist_flex.pos"]),
+                "gripper_link": float(obs["wrist_roll.pos"]), # The 6th motion
                 "moving_jaw_so101_v1_link": float(obs["gripper.pos"])
             }
 
