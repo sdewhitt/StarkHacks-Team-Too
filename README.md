@@ -52,6 +52,15 @@ This is the fastest way to demo Quest + twin synchronization without a real arm.
 - Policy/model artifacts are present in `model/`.
 - SmolVLA-related directories (`smolvla_base/`, `smolvla_finetune/`) are included for policy workflows.
 
+## SmolVLA & Our Fine-Tuning Scheme
+
+The learned policy in ControVirtual is [SmolVLA](https://huggingface.co/lerobot/smolvla_base), a compact open source Vision-Language-Action (VLA) model from the LeRobot team. In plain terms, a VLA model takes in what the robot sees (camera frames), what the robot currently *is* (proprioceptive joint state), and what it is *told* to do (a natural language instruction), and produces the next chunk of low level actions for the arm. We chose SmolVLA specifically because it is small enough to run on consumer hardware while still inheriting broad visuomotor priors from large scale pretraining on community robotics data — a useful trade-off for a hackathon stack that must fit on a single workstation alongside the camera server, voice bridge, and digital twin.
+
+Rather than train a policy from scratch, we finetune the pretrained `smolvla_base` checkpoint on our own task-specific dataset. Our target skill is deliberately simple and well-scoped: **pick up a screwdriver and move it onto a piece of paper**, executed on an SO-101 follower arm. We collected **50 teleoperated episodes** of this behavior, which by modern pretraining standards is a tiny dataset but is enough to meaningfully adapt a pretrained VLA to one concrete skill on one concrete embodiment. Fine-tuning preserves SmolVLA's general grounding of language and vision while re-specializing its action head for our robot's action and state spaces.
+
+At inference time, the finetuned checkpoint is driven by the rest of the stack described above: the Quest client streams a spoken instruction through the voice bridge, the camera server provides the visual observation, and the current robot state is read from the bridge's telemetry buffer. These three inputs are assembled into a SmolVLA observation frame and passed to the policy, which returns action chunks to be dispatched to the SO-101. Expect brittleness outside the fine-tuning distribution — unfamiliar distractors, very different lighting, or wildly different camera angles are out of scope for a 50-episode run. Instead, treat the included `smolvla_finetune/` checkpoint as a working demo of the pipeline rather than a general purpose manipulation policy.
+
+
 ## Repository Map
 
 - `quest-voice/`: Unity Quest app for voice capture + WebSocket command send.
@@ -115,3 +124,5 @@ Important limitation:
 - Add a robust action-dispatch path from policy output to robot controllers.
 - Add a single script/compose-style launcher for full demo bring-up.
 - Expand test coverage for bridge protocol and twin state schema contracts.
+
+
